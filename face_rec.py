@@ -4,13 +4,34 @@ import cv2
 from picamera.array import PiRGBArray
 from picamera import PiCamera
 import argparse
+import microgear.client as microgear
 import os
 from os import listdir
 from os.path import isfile, join
 from imutils.video import VideoStream
 import imutils
 import pickle
-     
+#connect netpie
+key = 'key'
+secret = 'secret key'
+app = 'APP_ID'
+
+microgear.create(key,secret,app,{'debugmode': True})
+
+def connection():
+    logging.info("Now I am connected with netpie")
+
+def subscription(topic,message):
+    print(topic+" "+message)
+
+def disconnect():
+    logging.info("disconnected")
+
+microgear.setalias("facerec")
+microgear.on_connect = connection
+microgear.on_message = subscription
+microgear.on_disconnect = disconnect
+microgear.connect()
 # This is a demo of running face recognition on live video from your webcam. It's a little more complicated than the
 # other example, but it includes some basic performance tweaks to make things run a lot faster:
 #   1. Process each video frame at 1/4 resolution (though still display it at full resolution)
@@ -55,7 +76,6 @@ known_face_encodings = data["encodings"]
 #known_face_names = data["name"]
 
 # Create arrays of known face encodings and their names
-fgbg = cv2.createBackgroundSubtractorMOG2(history=2000, varThreshold=100, detectShadows=False)
 # Initialize some variables
 face_locations = []
 face_encodings = []
@@ -103,6 +123,8 @@ for image in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
                     counts[name] = counts.get(name, 0) + 1
                 name = max(counts, key=counts.get)
             face_names.append(name)
+            myString = ",".join(face_names)
+            microgear.publish("/namePeople",myString,{'retain':True});
     process_this_frame = False
     if idle_time%5==0:
         process_this_frame = True
