@@ -124,7 +124,7 @@ for image in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
                 name = max(counts, key=counts.get)
             face_names.append(name)
             myString = ",".join(face_names)
-            microgear.publish("/namePeople",myString,{'retain':True});
+            microgear.publish("/namePeople",myString,{'retain':True})
     process_this_frame = False
     if idle_time%5==0:
         process_this_frame = True
